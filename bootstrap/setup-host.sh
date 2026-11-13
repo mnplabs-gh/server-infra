@@ -7,7 +7,19 @@
 
 set -euo pipefail
 
-echo "==> [1/5] Checking swap configuration..."
+echo "==> [1/6] Checking Docker installation..."
+if ! command -v docker >/dev/null 2>&1; then
+  echo "    Docker is not installed. Installing Docker..."
+  curl -fsSL https://get.docker.com | sh
+  systemctl enable --now docker
+  TARGET_USER="${SUDO_USER:-$USER}"
+  usermod -aG docker "$TARGET_USER" || true
+  echo "    Docker installed successfully."
+else
+  echo "    Docker is already installed ($(docker --version 2>/dev/null || echo 'ready'))."
+fi
+
+echo "==> [2/6] Checking swap configuration..."
 CURRENT_SWAP=$(free -m | awk '/^Swap:/ {print $2}')
 if [ "${CURRENT_SWAP:-0}" -lt 2048 ]; then
   echo "    Swap is low (${CURRENT_SWAP}MB). Setting up a 4GB swapfile..."
@@ -21,17 +33,26 @@ if [ "${CURRENT_SWAP:-0}" -lt 2048 ]; then
   if ! grep -q "$SWAPFILE" /etc/fstab; then
     echo "$SWAPFILE none swap sw 0 0" >> /etc/fstab
   fi
-  # Set low swappiness so swap is only used to prevent OOM panics
+  echo "    4GB swap configured."
+else
+  echo "    Swap is adequate (${CURRENT_SWAP}MB)."
+fi
+
+# Ensure low swappiness so swap is only used to prevent OOM panics
+CURRENT_SWAPPINESS=$(sysctl -n vm.swappiness 2>/dev/null || echo "60")
+if [ "$CURRENT_SWAPPINESS" -ne 10 ]; then
+  echo "    Setting vm.swappiness=10 (current: $CURRENT_SWAPPINESS)..."
   sysctl -w vm.swappiness=10
   if ! grep -q "vm.swappiness" /etc/sysctl.conf; then
     echo "vm.swappiness=10" >> /etc/sysctl.conf
+  else
+    sed -i 's/^vm\.swappiness=.*/vm.swappiness=10/' /etc/sysctl.conf
   fi
-  echo "    4GB swap configured."
 else
-  echo "    Swap is adequate (${CURRENT_SWAP}MB). Skipping."
+  echo "    vm.swappiness is already set to 10."
 fi
 
-echo "==> [2/5] Configuring Docker daemon log rotation..."
+echo "==> [3/6] Configuring Docker daemon log rotation..."
 DOCKER_DAEMON_JSON="/etc/docker/daemon.json"
 mkdir -p /etc/docker
 if [ ! -f "$DOCKER_DAEMON_JSON" ]; then
@@ -50,7 +71,7 @@ else
   echo "    $DOCKER_DAEMON_JSON already exists. Please verify log-opts max-size is set."
 fi
 
-echo "==> [3/5] Ensuring shared Docker network (web-gateway) exists..."
+echo "==> [4/6] Ensuring shared Docker network (web-gateway) exists..."
 if ! docker network inspect web-gateway >/dev/null 2>&1; then
   docker network create web-gateway
   echo "    Created external Docker network: web-gateway"
@@ -58,7 +79,7 @@ else
   echo "    Network web-gateway already exists."
 fi
 
-echo "==> [4/5] Establishing standardized application directory layout..."
+echo "==> [5/6] Establishing standardized application directory layout..."
 TARGET_USER="${SUDO_USER:-$USER}"
 TARGET_HOME=$(eval echo "~$TARGET_USER")
 APPS_ROOT="$TARGET_HOME/srv"
@@ -69,7 +90,7 @@ mkdir -p "$APPS_ROOT/ai-interviewer"
 chown -R "$TARGET_USER:$TARGET_USER" "$APPS_ROOT"
 echo "    Created $APPS_ROOT structure owned by $TARGET_USER."
 
-echo "==> [5/5] SELinux runner context check..."
+echo "==> [6/6] SELinux runner context check..."
 if command -v getenforce >/dev/null 2>&1 && [ "$(getenforce)" = "Enforcing" ]; then
   echo "    SELinux is Enforcing. If runners fail with 203/EXEC, run:"
   echo "    sudo chcon -R -t bin_t $TARGET_HOME/actions-runner-*"
