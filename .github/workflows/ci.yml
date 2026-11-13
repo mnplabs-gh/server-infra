@@ -1,0 +1,83 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # ----------------------------------------------------------------------------
+  # 1. VALIDATE: Runs on GitHub-hosted Ubuntu runner (Free Minutes)
+  #    Lints shell scripts and verifies Docker Compose configurations.
+  # ----------------------------------------------------------------------------
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Syntax check bash scripts
+        run: |
+          for f in bootstrap/*.sh; do
+            bash -n "$f"
+          done
+
+      - name: Run ShellCheck
+        run: |
+          shellcheck bootstrap/*.sh
+
+      - name: Validate Docker Compose configurations
+        run: |
+          # 1. Validate core stack
+          TUNNEL_TOKEN="dummy-token-for-validation" docker compose -f core/docker-compose.yml config --quiet
+
+          # 2. Validate application compose template
+          touch templates/.env
+          IMAGE_REPO="example/test" IMAGE_TAG="latest" docker compose -f templates/docker-compose.app.yml config --quiet
+          rm templates/.env
+
+  # ----------------------------------------------------------------------------
+  # 2. DEPLOY CORE: Runs on Host VM Runner
+  #    Deploys updated core infrastructure (cloudflared + Dozzle) to the VM.
+  # ----------------------------------------------------------------------------
+  deploy-core:
+    needs: validate
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, linux, arm64]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Synchronize bootstrap scripts and ensure executable
+        run: |
+          mkdir -p "${HOME}/server-infra/bootstrap"
+          cp -r bootstrap/* "${HOME}/server-infra/bootstrap/"
+          chmod +x "${HOME}/server-infra/bootstrap/"*.sh
+
+      - name: Configure core environment
+        env:
+          TUNNEL_TOKEN: ${{ secrets.TUNNEL_TOKEN }}
+        run: |
+          test -n "$TUNNEL_TOKEN" || { echo "::error::TUNNEL_TOKEN secret is empty or missing"; exit 1; }
+          umask 077
+          mkdir -p "${HOME}/server-infra/core"
+          echo "TUNNEL_TOKEN=${TUNNEL_TOKEN}" > "${HOME}/server-infra/core/.env"
+          cp core/docker-compose.yml "${HOME}/server-infra/core/docker-compose.yml"
+
+      - name: Deploy and restart core services
+        run: |
+          cd "${HOME}/server-infra/core"
+          docker compose pull
+          docker compose up -d --remove-orphans
+
+      - name: Verify core services health
+        run: |
+          sleep 5
+          docker inspect -f '{{.State.Running}}' core-cloudflared | grep -q "true" || { echo "::error::core-cloudflared is not running"; exit 1; }
+          docker inspect -f '{{.State.Running}}' core-dozzle | grep -q "true" || { echo "::error::core-dozzle is not running"; exit 1; }
+          # Verify Dozzle internal endpoint over web-gateway
+          docker run --rm --network web-gateway curlimages/curl:latest curl -fsS http://core-dozzle:8080/ >/dev/null
+          echo "Core infrastructure is healthy and operational!"
