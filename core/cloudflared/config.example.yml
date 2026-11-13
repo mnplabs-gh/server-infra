@@ -1,0 +1,29 @@
+# Example Cloudflare Tunnel ingress configuration (if using local config.yml)
+# If using Cloudflare Zero Trust Dashboard-managed tunnels, configure Public Hostnames in the UI instead.
+
+tunnel: <YOUR-TUNNEL-UUID>
+credentials-file: /etc/cloudflared/<YOUR-TUNNEL-UUID>.json
+
+ingress:
+  # Portfolio (Next.js frontend proxies /api to internal Fastify)
+  - hostname: portfolio.mnplabs.uk
+    service: http://portfolio-web:8080
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 10s
+
+  # AI Interviewer (Web frontend proxies /api to internal Fastify)
+  - hostname: ai-interviewer.mnplabs.uk
+    service: http://ai-interviewer-web:8080
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 10s
+
+  # Central Container Log Viewer
+  - hostname: logs.mnplabs.uk
+    service: http://core-dozzle:8080
+    originRequest:
+      noTLSVerify: true
+
+  # Fallback 404 rule for unmatched traffic (required as the final rule)
+  - service: http_status:404

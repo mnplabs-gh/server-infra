@@ -1,0 +1,12 @@
+# Standard Application Environment Template
+# These values are injected by GitHub Actions from the 'production' environment secrets/vars.
+
+# Public Site Configuration
+NODE_ENV=production
+PORT=8080
+
+# Database Configuration (External / Managed MongoDB, Postgres, Redis)
+DATABASE_URL=mongodb+srv://...
+
+# Security & Tokens
+APP_SECRET=change-me-to-a-secure-random-token

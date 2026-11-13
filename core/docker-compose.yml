@@ -1,0 +1,40 @@
+# Shared core infrastructure stack: Cloudflare Tunnel + Container Log Viewer
+name: core
+
+services:
+  # Cloudflare Tunnel: Establishes secure outbound tunnel to Cloudflare Edge
+  # No inbound firewall ports required on the host.
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: core-cloudflared
+    restart: unless-stopped
+    init: true
+    mem_limit: 128m
+    cpus: 0.1
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:?Set TUNNEL_TOKEN in core/.env}
+    networks:
+      - web-gateway
+
+  # Dozzle: Lightweight real-time log viewer for all Docker containers
+  # Accessible via Cloudflare Tunnel at logs.mnplabs.uk (protect with CF Zero Trust Access)
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: core-dozzle
+    restart: unless-stopped
+    init: true
+    mem_limit: 64m
+    cpus: 0.1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      DOZZLE_NO_ANALYTICS: "true"
+      DOZZLE_LEVEL: "info"
+    networks:
+      - web-gateway
+
+networks:
+  web-gateway:
+    name: web-gateway
+    external: true

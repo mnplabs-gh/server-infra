@@ -1,0 +1,40 @@
+# Standard Docker Compose Template for applications on the shared VM
+#
+# Rules:
+# 1. Give each project a fixed `name:` so its containers & networks are strictly isolated.
+# 2. Join the external `web-gateway` network so Cloudflare Tunnel can route to it.
+# 3. DO NOT publish host ports (unless specifically needed for local debugging).
+# 4. Set explicit mem_limit and cpus caps.
+name: my-app
+
+services:
+  # Web / Frontend (proxies to backend or serves public traffic)
+  web:
+    image: ${IMAGE_REPO}/web:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    init: true
+    mem_limit: 256m
+    cpus: 0.2
+    depends_on:
+      - server
+    env_file: .env
+    networks:
+      - default      # Private network to reach backend
+      - web-gateway  # Shared network so Cloudflare Tunnel reaches this container
+
+  # Server / Backend API (Internal only)
+  server:
+    image: ${IMAGE_REPO}/server:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    init: true
+    mem_limit: 512m
+    cpus: 0.4
+    env_file: .env
+    networks:
+      - default      # Only on default network; web container proxies /api to this.
+
+networks:
+  # The shared gateway network where Cloudflare Tunnel resides
+  web-gateway:
+    name: web-gateway
+    external: true
