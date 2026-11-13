@@ -24,9 +24,18 @@ This document explains the division of labor between GitHub-hosted runners and t
 
 ## GitHub Free Minutes Breakdown
 
-- Every GitHub personal account receives **2,000 free Actions minutes per month**.
+- Every GitHub Free organization (`@mnplabs-gh`) receives **2,000 free Actions minutes per month**.
 - GitHub provides **standard ARM64 runners** (`ubuntu-24.04-arm`) that qualify for free tier minutes on both public and private repositories.
 - Using `ubuntu-24.04-arm` avoids the slow emulation overhead of QEMU (`docker buildx --platform linux/arm64` on an x86 runner). Builds are native ARM64 and typically take 1 to 2 minutes with GitHub Actions layer caching (`type=gha`).
+
+---
+
+## Single Organization Runner
+
+Instead of running separate runner instances for every repository, a single self-hosted runner (`mnplabs-runner`) is registered at the **organization level** (`https://github.com/mnplabs-gh`).
+- It automatically handles deployment jobs across `portfolio`, `ai-interviewer`, `server-infra`, and any future repos created in the organization.
+- It consumes ~50 MB RAM on the host VM while idle.
+- Individual apps need zero runner installation or maintenance.
 
 ---
 

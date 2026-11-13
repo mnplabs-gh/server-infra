@@ -20,7 +20,7 @@ SSH into the new instance:
 
 ```bash
 # Clone the infrastructure repo
-git clone https://github.com/mnp-gh/server-infra.git ~/server-infra
+git clone https://github.com/mnplabs-gh/server-infra.git ~/server-infra
 cd ~/server-infra/bootstrap
 
 # Make scripts executable and run the host setup
@@ -47,26 +47,24 @@ sudo ./setup-host.sh
 
 ---
 
-## 4. Re-register GitHub Actions Runner(s)
+## 4. Re-register GitHub Actions Organization Runner
 
-1. Download and extract the GitHub Actions runner for ARM64:
+1. Download and extract the latest GitHub Actions runner for ARM64:
    ```bash
-   mkdir -p ~/actions-runner-portfolio && cd ~/actions-runner-portfolio
-   curl -o actions-runner-linux-arm64.tar.gz -L https://github.com/actions/runner/releases/download/v2.321.0/actions-runner-linux-arm64-2.321.0.tar.gz
+   mkdir -p ~/actions-runner-org && cd ~/actions-runner-org
+   curl -o actions-runner-linux-arm64.tar.gz -L https://github.com/actions/runner/releases/download/v2.338.2/actions-runner-linux-arm64-2.338.2.tar.gz
    tar xzf actions-runner-linux-arm64.tar.gz
    ```
-2. Get the runner token from GitHub repo (Settings $\rightarrow$ Actions $\rightarrow$ Runners $\rightarrow$ New runner).
-3. Configure and install systemd service:
+2. Get the runner token from GitHub Org (https://github.com/organizations/mnplabs-gh/settings/actions/runners/new).
+3. Configure, apply SELinux permissions, and install systemd service:
    ```bash
-   ./config.sh --url https://github.com/mnp-gh/portfolio --token <TOKEN> --name portfolio-gh-runner --labels self-hosted,linux,arm64
-   sudo ./svc.sh install
+   ./config.sh --url https://github.com/mnplabs-gh --token <TOKEN> --name mnplabs-runner --labels self-hosted,linux,arm64 --unattended
+   sudo ./svc.sh install opc
+   sudo chcon -R -t bin_t ~/actions-runner-org
    sudo ./svc.sh start
    ```
-4. If using SELinux (Oracle Linux):
-   ```bash
-   sudo chcon -R -t bin_t ~/actions-runner-*
-   sudo systemctl restart actions.runner.*
-   ```
+
+A single organization runner serves all applications (`portfolio`, `ai-interviewer`, `server-infra`, and future apps).
 
 ---
 

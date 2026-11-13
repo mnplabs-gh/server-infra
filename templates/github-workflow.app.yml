@@ -100,10 +100,10 @@ jobs:
         env:
           SECRETS: ${{ toJSON(secrets) }}
           VARS: ${{ toJSON(vars) }}
-          APP_NAME: "my-app" # Adjust to match your app directory in ~/srv/
+          APP_NAME: "my-app" # Adjust to match your app directory in ~/
         run: |
           umask 077
-          DEPLOY_PATH="${HOME}/srv/${APP_NAME}"
+          DEPLOY_PATH="${HOME}/${APP_NAME}"
           mkdir -p "$DEPLOY_PATH"
 
           # Write environment variables
@@ -118,11 +118,11 @@ jobs:
 
       - name: Copy docker-compose configuration
         run: |
-          cp deploy/docker-compose.yml "${HOME}/srv/my-app/docker-compose.yml"
+          cp deploy/docker-compose.yml "${HOME}/${APP_NAME}/docker-compose.yml"
 
       - name: Pull pre-built images and restart service
         run: |
-          cd "${HOME}/srv/my-app"
+          cd "${HOME}/${APP_NAME}"
           export IMAGE_REPO IMAGE_TAG="${{ github.sha }}"
 
           # Authenticate to GHCR temporarily to pull private images

@@ -61,6 +61,9 @@ In the application repo, create `.github/workflows/deploy.yml` (based on [templa
 - Ensure `build` runs on `ubuntu-24.04-arm` and pushes to GHCR.
 - Ensure `deploy` runs on `[self-hosted, linux, arm64]`.
 
+> [!NOTE]
+> Because your VM runs an **organization-level runner** (`@mnplabs-gh`), you do **not** need to install or configure any runner on the host! The runner is automatically available to all repos in `@mnplabs-gh` on day one.
+
 ---
 
 ### 5. Configure GitHub Secrets & Environments

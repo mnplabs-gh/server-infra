@@ -7,32 +7,32 @@ Central repository for configuring, operating, and orchestrating self-hosted app
 ```mermaid
 flowchart TD
   subgraph internet["Public Internet & Cloudflare Zero Trust"]
-    visitor["Visitor / User"] --> cf["Cloudflare Edge<br/>DNS · HTTPS · DDoS Protection · Turnstile"]
-    tunnel["Cloudflare Tunnel (cloudflared)<br/>Encrypted outbound tunnel (No open inbound ports)"]
+    visitor["Visitor / User"] --> cf["Cloudflare Edge (DNS · HTTPS · DDoS · Turnstile)"]
+    tunnel["Cloudflare Tunnel (cloudflared) - Encrypted outbound tunnel"]
     cf --> tunnel
   end
 
   subgraph vm["Oracle Cloud VM (arm64 · Always Free)"]
     subgraph dockerNet["Docker Bridge Network: web-gateway"]
-      cfContainer["cloudflared container<br/>Routes by internal Docker DNS"]
+      cfContainer["cloudflared container - Routes by internal Docker DNS"]
       tunnel -.-> cfContainer
 
       cfContainer -->|"http://portfolio-web:8080"| app1["portfolio (Next.js + Fastify)"]
       cfContainer -->|"http://ai-interviewer-web:8080"| app2["ai-interviewer (Web + Fastify)"]
       cfContainer -->|"http://app-n-web:PORT"| appN["Future Apps..."]
-      cfContainer -->|"http://dozzle:8080"| logs["Dozzle (Log Viewer)"]
+      cfContainer -->|"http://core-dozzle:8080"| logs["Dozzle (Log Viewer)"]
     end
 
     subgraph runnerHost["Host Systemd Services"]
-      runner["GitHub Actions Runner(s)<br/>Executes ONLY the deploy step"]
+      runner["mnplabs-runner (Org Self-Hosted Runner) - Serves all @mnplabs-gh repos"]
       cron["Automated Prune & Maintenance Cron"]
     end
   end
 
-  subgraph github["GitHub CI/CD"]
-    commit["Git Push to main"] --> checkJob["check (GitHub Free VM Minutes)<br/>runs on ubuntu-24.04"]
-    checkJob --> buildJob["build (GitHub Free VM Minutes)<br/>runs on ubuntu-24.04-arm<br/>Pushes images to GHCR"]
-    buildJob --> deployJob["deploy (Runs on Host Runner)<br/>Pulls image & restarts compose"]
+  subgraph github["GitHub CI/CD (@mnplabs-gh)"]
+    commit["Git Push to main"] --> checkJob["check (GitHub Free VM Minutes on ubuntu-24.04)"]
+    checkJob --> buildJob["build (GitHub Free ARM64 Minutes on ubuntu-24.04-arm)"]
+    buildJob --> deployJob["deploy (Runs on Host Org Runner) - Pulls image & restarts"]
     deployJob -.-> runner
   end
 ```
@@ -56,6 +56,9 @@ flowchart TD
 
 ```text
 server-infra/
+├── .github/
+│   └── workflows/
+│       └── ci.yml          # CI/CD: bash script linting, compose validation & core deploy
 ├── README.md               # Architecture, principles, and index
 ├── REGISTRY.md             # The Single Source of Truth for all deployed services
 ├── core/
@@ -74,7 +77,7 @@ server-infra/
 │   └── app-env.example     # Standard env template for apps
 └── docs/
     ├── architecture.md     # Deep dive into network topology & resource budgeting
-    ├── onboarding-new-app.md # 5-step runbook for deploying a new application
+    ├── onboarding-new-app.md # 4-step runbook for deploying a new application
     ├── ci-cd-standard.md   # Comprehensive guide to the GitHub Actions workflow
     └── disaster-recovery.md# Bare-metal recovery instructions
 ```
@@ -88,7 +91,7 @@ server-infra/
 SSH into the VM and run the automated bootstrap script:
 
 ```bash
-git clone https://github.com/mnp-gh/server-infra.git ~/server-infra
+git clone https://github.com/mnplabs-gh/server-infra.git ~/server-infra
 cd ~/server-infra/bootstrap
 chmod +x *.sh
 sudo ./setup-host.sh
@@ -96,10 +99,11 @@ sudo ./setup-host.sh
 ```
 
 This will:
+- Verify / install Docker.
 - Enable 4GB swap space (with `vm.swappiness=10`).
-- Configure Docker log rotation limits (`max-size: 20m`, `max-file: 3`) in `/etc/docker/daemon.json`.
+- Configure Docker log rotation limits (`max-size: 10m-20m`, `max-file: 3`) in `/etc/docker/daemon.json`.
 - Create the shared `web-gateway` Docker network.
-- Create the standardized application directory layout in `~/srv/`.
+- Establish the application directory layout in `~/<app>`.
 
 ### 2. Start Core Services (Cloudflare Tunnel & Logs)
 

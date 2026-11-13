@@ -8,12 +8,12 @@ This registry is the **Single Source of Truth** for all containers and services 
 
 | Service Name | Public Hostname | Compose Name | Internal Docker DNS | Memory Limit | CPU Limit | Runner / CI | Persistent Data |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Cloudflare Tunnel** | N/A (Ingress) | `core` | `core-cloudflared` | `128m` | `0.1` | Manual / Core | None (Stateless) |
-| **Dozzle (Log Viewer)**| `logs.mnplabs.uk` (Zero Trust protected) | `core` | `core-dozzle:8080` | `64m` | `0.1` | Manual / Core | None (reads `/var/run/docker.sock`) |
-| **Portfolio Web** | `portfolio.mnplabs.uk` | `portfolio` | `portfolio-web:8080` | `384m` | `0.3` | `portfolio-gh-runner` | None |
-| **Portfolio API** | Internal (`/api`) | `portfolio` | `portfolio-server:3000` | `256m` | `0.2` | `portfolio-gh-runner` | MongoDB (Atlas / external) |
-| **AI Interviewer Web** | `ai-interviewer.mnplabs.uk` | `ai-interviewer` | `ai-interviewer-web:8080` | `128m` | `0.1` | `ai-interviewer-gh-runner` | None |
-| **AI Interviewer API** | Internal (`/api`) | `ai-interviewer` | `ai-interviewer-server:3000` | `1024m` (1G) | `0.4` | `ai-interviewer-gh-runner` | MongoDB (Atlas / external) |
+| **Cloudflare Tunnel** | N/A (Ingress) | `core` | `core-cloudflared` | `128m` | `0.1` | server-infra CI/CD (`mnplabs-runner`) | None (Stateless) |
+| **Dozzle (Log Viewer)**| `logs.mnplabs.uk` (Zero Trust protected) | `core` | `core-dozzle:8080` | `64m` | `0.1` | server-infra CI/CD (`mnplabs-runner`) | None (reads `/var/run/docker.sock`) |
+| **Portfolio Web** | `portfolio.mnplabs.uk` | `portfolio` | `portfolio-web:8080` | `384m` | `0.3` | portfolio CI/CD (`mnplabs-runner`) | None |
+| **Portfolio API** | Internal (`/api`) | `portfolio` | `portfolio-server:3000` | `256m` | `0.2` | portfolio CI/CD (`mnplabs-runner`) | MongoDB (Atlas / external) |
+| **AI Interviewer Web** | `ai-interviewer.mnplabs.uk` | `ai-interviewer` | `ai-interviewer-web:8080` | `128m` | `0.1` | ai-interviewer CI/CD (`mnplabs-runner`) | None |
+| **AI Interviewer API** | Internal (`/api`) | `ai-interviewer` | `ai-interviewer-server:3000` | `1024m` (1G) | `0.4` | ai-interviewer CI/CD (`mnplabs-runner`) | MongoDB (Atlas / external) |
 
 ---
 

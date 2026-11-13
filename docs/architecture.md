@@ -19,21 +19,26 @@ This document details the network topology, security model, and resource boundar
           ▼ (Outbound QUIC / HTTP2 Tunnel Connection)
 [ Oracle Cloud Always Free VM ]
     │
+    ├── Host Systemd Services
+    │    ├── mnplabs-runner (Org-wide GitHub Actions Runner for @mnplabs-gh)
+    │    ├── cloudflared (WARP private network routing)
+    │    └── docker (Container runtime)
+    │
     └── Docker Engine
          │
          ├── Shared Bridge Network: "web-gateway"
-         │    ├── core-cloudflared (Tunnel client)
+         │    ├── core-cloudflared (Encrypted outbound Zero Trust tunnel)
          │    ├── portfolio-web (Listening on 8080 internally)
          │    ├── ai-interviewer-web (Listening on 8080 internally)
          │    └── core-dozzle (Listening on 8080 internally)
          │
          ├── Private Network: "portfolio_default"
          │    ├── portfolio-web
-         │    └── portfolio-server (Listening on 3000 internally)
+         │    └── portfolio-server (Listening internally)
          │
          └── Private Network: "ai-interviewer_default"
               ├── ai-interviewer-web
-              └── ai-interviewer-server (Listening on 3000 internally)
+              └── ai-interviewer-server (Listening internally)
 ```
 
 ### Key Advantages

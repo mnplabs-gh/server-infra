@@ -79,16 +79,15 @@ else
   echo "    Network web-gateway already exists."
 fi
 
-echo "==> [5/6] Establishing standardized application directory layout..."
+echo "==> [5/6] Establishing application directory layout..."
 TARGET_USER="${SUDO_USER:-$USER}"
 TARGET_HOME=$(eval echo "~$TARGET_USER")
-APPS_ROOT="$TARGET_HOME/srv"
 
-mkdir -p "$APPS_ROOT/core"
-mkdir -p "$APPS_ROOT/portfolio"
-mkdir -p "$APPS_ROOT/ai-interviewer"
-chown -R "$TARGET_USER:$TARGET_USER" "$APPS_ROOT"
-echo "    Created $APPS_ROOT structure owned by $TARGET_USER."
+mkdir -p "$TARGET_HOME/portfolio"
+mkdir -p "$TARGET_HOME/ai-interviewer"
+mkdir -p "$TARGET_HOME/server-infra"
+chown -R "$TARGET_USER:$TARGET_USER" "$TARGET_HOME/portfolio" "$TARGET_HOME/ai-interviewer" "$TARGET_HOME/server-infra"
+echo "    Ensured application directories exist owned by $TARGET_USER."
 
 echo "==> [6/6] SELinux runner context check..."
 if command -v getenforce >/dev/null 2>&1 && [ "$(getenforce)" = "Enforcing" ]; then
