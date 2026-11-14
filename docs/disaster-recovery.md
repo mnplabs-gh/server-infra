@@ -76,7 +76,7 @@ Portainer CE starts automatically with the `core` stack in Step 3. Verify it is 
 docker ps | grep core-portainer
 ```
 
-Access Portainer via your configured Cloudflare Tunnel hostname (e.g. `manage.mnplabs.uk`) to inspect running containers and stream live logs.
+Access Portainer via your configured Cloudflare Tunnel hostname (e.g. `portainer.mnplabs.uk`) to inspect running containers and stream live logs.
 
 ---
 

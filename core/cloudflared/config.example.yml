@@ -20,7 +20,7 @@ ingress:
       connectTimeout: 10s
 
   # Portainer CE (Container Management, Live Logs & Stats)
-  - hostname: manage.mnplabs.uk
+  - hostname: portainer.mnplabs.uk
     service: http://core-portainer:9000
     originRequest:
       noTLSVerify: true

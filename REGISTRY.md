@@ -9,7 +9,7 @@ This registry is the **Single Source of Truth** for all containers and services 
 | Service Name | Public Hostname | Compose Name | Internal Docker DNS | Memory Limit | CPU Limit | Runner / CI | Persistent Data |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Cloudflare Tunnel** | N/A (Ingress) | `core` | `core-cloudflared` | `128m` | `0.1` | server-infra CI/CD (`mnplabs-runner`) | None (Stateless) |
-| **Portainer CE** | `manage.mnplabs.uk` (or Tunnel) | `core` | `core-portainer:9000` | `128m` | `0.2` | server-infra CI/CD (`mnplabs-runner`) | Volume: `core-portainer_data` |
+| **Portainer CE** | `portainer.mnplabs.uk` | `core` | `core-portainer:9000` | `128m` | `0.2` | server-infra CI/CD (`mnplabs-runner`) | Volume: `core-portainer_data` |
 | **Portfolio Web** | `portfolio.mnplabs.uk` | `portfolio` | `portfolio-web:8080` | `384m` | `0.3` | portfolio CI/CD (`mnplabs-runner`) | None |
 | **Portfolio API** | Internal (`/api`) | `portfolio` | `portfolio-server:3000` | `256m` | `0.2` | portfolio CI/CD (`mnplabs-runner`) | MongoDB (Atlas / external) |
 | **AI Interviewer Web** | `ai-interviewer.mnplabs.uk` | `ai-interviewer` | `ai-interviewer-web:8080` | `128m` | `0.1` | ai-interviewer CI/CD (`mnplabs-runner`) | None |
