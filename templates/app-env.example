@@ -10,3 +10,9 @@ DATABASE_URL=mongodb+srv://...
 
 # Security & Tokens
 APP_SECRET=change-me-to-a-secure-random-token
+
+# Observability & APM (New Relic)
+NEW_RELIC_LICENSE_KEY=...
+NEW_RELIC_APP_NAME=my-app-server
+NEW_RELIC_DISTRIBUTED_TRACING_ENABLED=true
+NEW_RELIC_LOG_LEVEL=info

@@ -10,6 +10,7 @@ name: my-app
 services:
   # Web / Frontend (proxies to backend or serves public traffic)
   web:
+    container_name: my-app-web
     image: ${IMAGE_REPO}/web:${IMAGE_TAG:-latest}
     restart: unless-stopped
     init: true
@@ -24,6 +25,7 @@ services:
 
   # Server / Backend API (Internal only)
   server:
+    container_name: my-app-server
     image: ${IMAGE_REPO}/server:${IMAGE_TAG:-latest}
     restart: unless-stopped
     init: true
