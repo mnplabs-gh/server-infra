@@ -9,7 +9,7 @@ This registry is the **Single Source of Truth** for all containers and services 
 | Service Name | Public Hostname | Compose Name | Internal Docker DNS | Memory Limit | CPU Limit | Runner / CI | Persistent Data |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Cloudflare Tunnel** | N/A (Ingress) | `core` | `core-cloudflared` | `128m` | `0.1` | server-infra CI/CD (`mnplabs-runner`) | None (Stateless) |
-| **Dozzle (Log Viewer)**| `logs.mnplabs.uk` (Zero Trust protected) | `core` | `core-dozzle:8080` | `64m` | `0.1` | server-infra CI/CD (`mnplabs-runner`) | None (reads `/var/run/docker.sock`) |
+| **New Relic Agent** | N/A (Outbound to NR Cloud) | `systemd` (`newrelic-infra`) | Host Daemon | ~45m | ~0.1 | server-infra CI/CD (`mnplabs-runner`) | Logs & Metrics forwarded to New Relic |
 | **Portfolio Web** | `portfolio.mnplabs.uk` | `portfolio` | `portfolio-web:8080` | `384m` | `0.3` | portfolio CI/CD (`mnplabs-runner`) | None |
 | **Portfolio API** | Internal (`/api`) | `portfolio` | `portfolio-server:3000` | `256m` | `0.2` | portfolio CI/CD (`mnplabs-runner`) | MongoDB (Atlas / external) |
 | **AI Interviewer Web** | `ai-interviewer.mnplabs.uk` | `ai-interviewer` | `ai-interviewer-web:8080` | `128m` | `0.1` | ai-interviewer CI/CD (`mnplabs-runner`) | None |
@@ -43,8 +43,7 @@ All public traffic flows through the `web-gateway` bridge network:
        ▼
 [core-cloudflared container]
        ├── (bridge: web-gateway) ──> [portfolio-web:8080] ──> [portfolio-server] (private network)
-       ├── (bridge: web-gateway) ──> [ai-interviewer-web:8080] ──> [ai-interviewer-server] (private network)
-       └── (bridge: web-gateway) ──> [core-dozzle:8080]
+       └── (bridge: web-gateway) ──> [ai-interviewer-web:8080] ──> [ai-interviewer-server] (private network)
 ```
 
 - **Frontends**: Connect to `web-gateway` so Cloudflare Tunnel can reach them.

@@ -1,4 +1,5 @@
-# Shared core infrastructure stack: Cloudflare Tunnel + Container Log Viewer
+# Shared core infrastructure stack: Cloudflare Tunnel
+# Observability and metrics are provided natively by New Relic (systemd service + APM).
 name: core
 
 services:
@@ -14,23 +15,6 @@ services:
     command: tunnel --no-autoupdate run
     environment:
       TUNNEL_TOKEN: ${TUNNEL_TOKEN:?Set TUNNEL_TOKEN in core/.env}
-    networks:
-      - web-gateway
-
-  # Dozzle: Lightweight real-time log viewer for all Docker containers
-  # Accessible via Cloudflare Tunnel at logs.mnplabs.uk (protect with CF Zero Trust Access)
-  dozzle:
-    image: amir20/dozzle:latest
-    container_name: core-dozzle
-    restart: unless-stopped
-    init: true
-    mem_limit: 64m
-    cpus: 0.1
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    environment:
-      DOZZLE_NO_ANALYTICS: "true"
-      DOZZLE_LEVEL: "info"
     networks:
       - web-gateway
 
