@@ -20,11 +20,11 @@ flowchart TD
       cfContainer -->|"http://portfolio-web:8080"| app1["portfolio (Next.js + Fastify)"]
       cfContainer -->|"http://ai-interviewer-web:8080"| app2["ai-interviewer (Web + Fastify)"]
       cfContainer -->|"http://app-n-web:PORT"| appN["Future Apps..."]
-      cfContainer -->|"http://core-dozzle:8080"| logs["Dozzle (Log Viewer)"]
     end
 
     subgraph runnerHost["Host Systemd Services"]
       runner["mnplabs-runner (Org Self-Hosted Runner) - Serves all @mnplabs-gh repos"]
+      newrelic["newrelic-infra (Host Metrics & Container Log Forwarding via Fluent Bit)"]
       cron["Automated Prune & Maintenance Cron"]
     end
   end

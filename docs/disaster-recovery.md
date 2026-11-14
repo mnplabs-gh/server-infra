@@ -68,7 +68,19 @@ A single organization runner serves all applications (`portfolio`, `ai-interview
 
 ---
 
-## 5. Redeploy All Applications
+## 5. Reconnect New Relic Observability
+
+Run the bootstrap provisioning script with your New Relic Ingest License Key:
+
+```bash
+sudo NEW_RELIC_LICENSE_KEY="<LICENSE_KEY>" ~/server-infra/bootstrap/setup-newrelic.sh
+```
+
+This restores the `newrelic-infra` systemd service and Docker container log forwarding via Fluent Bit.
+
+---
+
+## 6. Redeploy All Applications
 
 Since all application images are preserved in GitHub Container Registry (GHCR), simply go to GitHub Actions for each repo (`portfolio`, `ai-interviewer`) and trigger the **CI/CD** workflow (or re-run the latest successful deploy job).
 
