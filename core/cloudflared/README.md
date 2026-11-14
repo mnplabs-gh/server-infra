@@ -16,7 +16,7 @@ This is the simplest and lowest-maintenance method:
    - **URL**: `portfolio-web:8080` (or `localhost:8082` if transitioning)
 4. Add hostnames for each app:
    - `ai-interviewer.mnplabs.uk` $\rightarrow$ `HTTP://ai-interviewer-web:8080`
-   - `logs.mnplabs.uk` $\rightarrow$ `HTTP://core-dozzle:8080`
+   - `manage.mnplabs.uk` $\rightarrow$ `HTTP://core-portainer:9000` (Portainer CE)
 5. Click Save. Cloudflare updates the tunnel instantly over the established control connection—no restart needed!
 
 ### Method 2: Local `config.yml`

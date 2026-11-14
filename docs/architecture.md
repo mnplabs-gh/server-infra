@@ -21,7 +21,6 @@ This document details the network topology, security model, and resource boundar
     │
     ├── Host Systemd Services
     │    ├── mnplabs-runner (Org-wide GitHub Actions Runner for @mnplabs-gh)
-    │    ├── newrelic-infra (Host metrics & Docker container logs via embedded Fluent Bit)
     │    ├── cloudflared (WARP private network routing)
     │    └── docker (Container runtime)
     │
@@ -29,6 +28,7 @@ This document details the network topology, security model, and resource boundar
          │
          ├── Shared Bridge Network: "web-gateway"
          │    ├── core-cloudflared (Encrypted outbound Zero Trust tunnel)
+         │    ├── core-portainer (Portainer CE: Container management, live logs & stats on port 9000)
          │    ├── portfolio-web (Listening on 8080 internally)
          │    └── ai-interviewer-web (Listening on 8080 internally)
          │

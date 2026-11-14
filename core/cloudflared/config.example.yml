@@ -19,9 +19,9 @@ ingress:
       noTLSVerify: true
       connectTimeout: 10s
 
-  # Central Container Log Viewer
-  - hostname: logs.mnplabs.uk
-    service: http://core-dozzle:8080
+  # Portainer CE (Container Management, Live Logs & Stats)
+  - hostname: manage.mnplabs.uk
+    service: http://core-portainer:9000
     originRequest:
       noTLSVerify: true
 

@@ -42,7 +42,7 @@ jobs:
 
   # ----------------------------------------------------------------------------
   # 2. DEPLOY CORE: Runs on Host VM Runner
-  #    Deploys updated core infrastructure (cloudflared + New Relic) to the VM.
+  #    Deploys updated core infrastructure (cloudflared + portainer) to the VM.
   # ----------------------------------------------------------------------------
   deploy-core:
     needs: validate
