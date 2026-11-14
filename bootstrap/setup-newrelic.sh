@@ -46,6 +46,14 @@ if ! grep -q "^display_name:" "$CONFIG_FILE"; then
   echo "display_name: free-vnic" >> "$CONFIG_FILE"
 fi
 
+# Ensure docker_enabled feature is enabled for container metrics (nri-docker)
+if ! grep -q "docker_enabled:" "$CONFIG_FILE"; then
+  cat <<'EOF' >> "$CONFIG_FILE"
+features:
+  docker_enabled: true
+EOF
+fi
+
 # Configure Docker container log forwarding via embedded Fluent Bit
 LOGGING_DIR="/etc/newrelic-infra/logging.d"
 mkdir -p "$LOGGING_DIR"
