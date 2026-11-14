@@ -54,13 +54,91 @@ features:
 EOF
 fi
 
-# Configure Docker container log forwarding via embedded Fluent Bit
-LOGGING_DIR="/etc/newrelic-infra/logging.d"
+# Configure Docker container log forwarding via embedded Fluent Bit with Lua container name enrichment
+INFRA_DIR="/etc/newrelic-infra"
+LOGGING_DIR="${INFRA_DIR}/logging.d"
 mkdir -p "$LOGGING_DIR"
+
+# Lua script to enrich container logs with human-readable container_name
+cat <<'EOF' > "$INFRA_DIR/docker_metadata.lua"
+local DOCKER_VAR_DIR = "/var/lib/docker/containers/"
+local cache = {}
+
+local function get_container_name_from_disk(container_id)
+    local config_file_path = DOCKER_VAR_DIR .. container_id .. "/config.v2.json"
+    local file = io.open(config_file_path, "r")
+    if not file then return nil end
+    local content = file:read("*all")
+    file:close()
+    local name = content:match('"Name":"/([^"]+)"')
+    return name
+end
+
+function enrich_with_docker_metadata(tag, timestamp, record)
+    local filepath = record["filePath"]
+    if not filepath then
+        return 0, timestamp, record
+    end
+
+    local container_id = filepath:match("/containers/([a-f0-9]+)/")
+    if not container_id then
+        return 0, timestamp, record
+    end
+
+    local container_name = cache[container_id]
+    if not container_name then
+        container_name = get_container_name_from_disk(container_id)
+        if container_name then
+            cache[container_id] = container_name
+        else
+            container_name = "unknown"
+        end
+    end
+
+    record["container_name"] = container_name
+    record["containerName"] = container_name
+    record["container_id"] = container_id:sub(1, 12)
+    if record["log"] then
+        record["message"] = record["log"]
+    end
+
+    return 1, timestamp, record
+end
+EOF
+
+# Fluent Bit configuration using native parser & Lua filter
+cat <<'EOF' > "$INFRA_DIR/fluent-bit.conf"
+[INPUT]
+    Name tail
+    Path /var/lib/docker/containers/*/*.log
+    Buffer_Max_Size 128k
+    Mem_Buf_Limit 16384k
+    Skip_Long_Lines On
+    Path_Key filePath
+    Parser json
+    Tag docker-containers
+    DB /var/db/newrelic-infra/newrelic-integrations/logging/fb.db
+    Read_from_Head true
+
+[FILTER]
+    Name lua
+    Match docker-containers
+    Script /etc/newrelic-infra/docker_metadata.lua
+    Call enrich_with_docker_metadata
+
+[FILTER]
+    Name record_modifier
+    Match docker-containers
+    Record hostname free-vnic
+    Record plugin.type nri-agent
+EOF
+
+# Wire into newrelic-infra logging.d
 cat <<'EOF' > "$LOGGING_DIR/docker.yml"
 logs:
   - name: docker-containers
-    file: /var/lib/docker/containers/*/*.log
+    fluentbit:
+      config_file: /etc/newrelic-infra/fluent-bit.conf
 EOF
 
 echo "==> [4/4] Starting and enabling newrelic-infra service..."
