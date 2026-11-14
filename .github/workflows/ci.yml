@@ -57,13 +57,6 @@ jobs:
           cp -r bootstrap/* "${HOME}/server-infra/bootstrap/"
           chmod +x "${HOME}/server-infra/bootstrap/"*.sh
 
-      - name: Provision New Relic Infrastructure and Logging Agent
-        env:
-          NEW_RELIC_LICENSE_KEY: ${{ secrets.NEW_RELIC_LICENSE_KEY }}
-        run: |
-          test -n "$NEW_RELIC_LICENSE_KEY" || { echo "::error::NEW_RELIC_LICENSE_KEY secret is empty or missing"; exit 1; }
-          sudo env "NEW_RELIC_LICENSE_KEY=$NEW_RELIC_LICENSE_KEY" bash "${HOME}/server-infra/bootstrap/setup-newrelic.sh"
-
       - name: Configure core environment
         env:
           TUNNEL_TOKEN: ${{ secrets.TUNNEL_TOKEN }}
@@ -84,5 +77,5 @@ jobs:
         run: |
           sleep 5
           docker inspect -f '{{.State.Running}}' core-cloudflared | grep -q "true" || { echo "::error::core-cloudflared is not running"; exit 1; }
-          systemctl is-active --quiet newrelic-infra || { echo "::error::newrelic-infra is not active"; exit 1; }
-          echo "Core infrastructure and New Relic monitoring are healthy and operational!"
+          docker inspect -f '{{.State.Running}}' core-portainer | grep -q "true" || { echo "::error::core-portainer is not running"; exit 1; }
+          echo "Core infrastructure (cloudflared + portainer) is healthy and operational!"

@@ -68,15 +68,15 @@ A single organization runner serves all applications (`portfolio`, `ai-interview
 
 ---
 
-## 5. Reconnect New Relic Observability
+## 5. Verify Core Observability (Portainer CE)
 
-Run the bootstrap provisioning script with your New Relic Ingest License Key:
+Portainer CE starts automatically with the `core` stack in Step 3. Verify it is running:
 
 ```bash
-sudo NEW_RELIC_LICENSE_KEY="<LICENSE_KEY>" ~/server-infra/bootstrap/setup-newrelic.sh
+docker ps | grep core-portainer
 ```
 
-This restores the `newrelic-infra` systemd service and Docker container log forwarding via Fluent Bit.
+Access Portainer via your configured Cloudflare Tunnel hostname (e.g. `manage.mnplabs.uk`) to inspect running containers and stream live logs.
 
 ---
 

@@ -1,5 +1,4 @@
-# Shared core infrastructure stack: Cloudflare Tunnel
-# Observability and metrics are provided natively by New Relic (systemd service + APM).
+# Shared core infrastructure stack: Cloudflare Tunnel & Portainer CE
 name: core
 
 services:
@@ -17,6 +16,24 @@ services:
       TUNNEL_TOKEN: ${TUNNEL_TOKEN:?Set TUNNEL_TOKEN in core/.env}
     networks:
       - web-gateway
+
+  # Portainer Community Edition: Docker container management, live log viewer, and stats
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: core-portainer
+    restart: unless-stopped
+    command: -H unix:///var/run/docker.sock
+    mem_limit: 128m
+    cpus: 0.2
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - web-gateway
+
+volumes:
+  portainer_data:
+    name: core-portainer_data
 
 networks:
   web-gateway:

@@ -17,6 +17,7 @@ flowchart TD
       cfContainer["cloudflared container - Routes by internal Docker DNS"]
       tunnel -.-> cfContainer
 
+      cfContainer -->|"http://core-portainer:9000"| portainer["Portainer CE (Logs, Stats & Container Management)"]
       cfContainer -->|"http://portfolio-web:8080"| app1["portfolio (Next.js + Fastify)"]
       cfContainer -->|"http://ai-interviewer-web:8080"| app2["ai-interviewer (Web + Fastify)"]
       cfContainer -->|"http://app-n-web:PORT"| appN["Future Apps..."]
@@ -24,7 +25,6 @@ flowchart TD
 
     subgraph runnerHost["Host Systemd Services"]
       runner["mnplabs-runner (Org Self-Hosted Runner) - Serves all @mnplabs-gh repos"]
-      newrelic["newrelic-infra (Host Metrics & Container Log Forwarding via Fluent Bit)"]
       cron["Automated Prune & Maintenance Cron"]
     end
   end
