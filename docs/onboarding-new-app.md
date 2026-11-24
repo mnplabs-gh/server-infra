@@ -8,7 +8,7 @@ Follow these steps to deploy a new application to the shared VM in under 10 minu
 
 ### 1. Register the Application in this Repo
 Open [REGISTRY.md](../REGISTRY.md) and allocate:
-- **Public Hostname**: e.g., `myapp.mnplabs.uk`
+- **Public Hostname**: e.g., `myapp.mnplabs.in`
 - **Compose Project Name**: e.g., `myapp`
 - **Internal Container Name**: e.g., `myapp-web:8080`
 - **Memory & CPU Caps**: e.g., `256m`, `0.2`
@@ -23,7 +23,7 @@ In Cloudflare Zero Trust:
 2. In the **Public Hostnames** tab, click **Add a public hostname**.
 3. Set:
    - **Subdomain**: `myapp`
-   - **Domain**: `mnplabs.uk`
+   - **Domain**: `mnplabs.in`
    - **Type**: `HTTP`
    - **URL**: `myapp-web:8080` (resolves over `web-gateway`)
 4. Save the hostname.

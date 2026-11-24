@@ -11,7 +11,7 @@ This document details the network topology, security model, and resource boundar
           │
           ▼
 [ Cloudflare Edge ]
-    • DNS Management (portfolio.mnplabs.uk, ai-interviewer.mnplabs.uk)
+    • DNS Management (portfolio.mnplabs.in, ai-interviewer.mnplabs.in)
     • Automatic HTTPS & SSL termination
     • DDoS protection & rate limiting
     • Cloudflare Turnstile bot protection

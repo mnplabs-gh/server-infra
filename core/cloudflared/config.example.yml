@@ -6,21 +6,21 @@ credentials-file: /etc/cloudflared/<YOUR-TUNNEL-UUID>.json
 
 ingress:
   # Portfolio (Next.js frontend proxies /api to internal Fastify)
-  - hostname: portfolio.mnplabs.uk
+  - hostname: portfolio.mnplabs.in
     service: http://portfolio-web:8080
     originRequest:
       noTLSVerify: true
       connectTimeout: 10s
 
   # AI Interviewer (Web frontend proxies /api to internal Fastify)
-  - hostname: ai-interviewer.mnplabs.uk
+  - hostname: ai-interviewer.mnplabs.in
     service: http://ai-interviewer-web:8080
     originRequest:
       noTLSVerify: true
       connectTimeout: 10s
 
   # Portainer CE (Container Management, Live Logs & Stats)
-  - hostname: portainer.mnplabs.uk
+  - hostname: portainer.mnplabs.in
     service: http://core-portainer:9000
     originRequest:
       noTLSVerify: true

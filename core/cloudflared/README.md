@@ -11,12 +11,12 @@ This is the simplest and lowest-maintenance method:
 2. Under the **Public Hostnames** tab, click **Add a public hostname**.
 3. Fill in:
    - **Subdomain**: `portfolio`
-   - **Domain**: `mnplabs.uk`
+   - **Domain**: `mnplabs.in`
    - **Service Type**: `HTTP`
    - **URL**: `portfolio-web:8080` (or `localhost:8082` if transitioning)
 4. Add hostnames for each app:
-   - `ai-interviewer.mnplabs.uk` $\rightarrow$ `HTTP://ai-interviewer-web:8080`
-   - `portainer.mnplabs.uk` $\rightarrow$ `HTTP://core-portainer:9000` (Portainer CE)
+   - `ai-interviewer.mnplabs.in` $\rightarrow$ `HTTP://ai-interviewer-web:8080`
+   - `portainer.mnplabs.in` $\rightarrow$ `HTTP://core-portainer:9000` (Portainer CE)
 5. Click Save. Cloudflare updates the tunnel instantly over the established control connection—no restart needed!
 
 ### Method 2: Local `config.yml`
